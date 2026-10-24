@@ -1,0 +1,8 @@
+.env
+*.log
+node_modules/
+reports/*
+!reports/.gitkeep
+screenshots/*
+!screenshots/.gitkeep
+app/Dockerfile.backup

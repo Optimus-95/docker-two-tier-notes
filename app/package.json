@@ -1,0 +1,14 @@
+{
+  "name": "docker-two-tier-notes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A two-tier Notes application for a Docker and DevSecOps portfolio project",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  }
+}
