@@ -6,3 +6,12 @@ reports/*
 screenshots/*
 !screenshots/.gitkeep
 app/Dockerfile.backup
+
+# Allow portfolio screenshots in Git
+!screenshots/
+screenshots/*
+!screenshots/.gitkeep
+!screenshots/*.png
+!screenshots/*.jpg
+!screenshots/*.jpeg
+!screenshots/*.webp
