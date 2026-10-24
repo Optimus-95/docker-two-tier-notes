@@ -39,23 +39,29 @@ flowchart LR
     App --- Backend
     Backend --- DB
 ```
-Network Design
-- Frontend network: connects the application to the frontend-facing Docker network.
-- Backend network: an internal Docker network used for application-to-database communication.
-- PostgreSQL does not publish port 5432 on the host.
-- The application is published on host port 3000.
-Technology Stack
-Technology	Purpose
-Ubuntu Linux	Host operating system
-Docker Engine	Container runtime
-Docker Compose	Multi-container orchestration
-Node.js 22	Application runtime
-Express	Web framework
-PostgreSQL 17	Relational database
-Trivy	Container-image vulnerability scanning
-Git and GitHub	Source control and project hosting
+## Network Design
 
-Repository Structure
+- **Frontend network:** Connects the application to the frontend-facing Docker network.
+- **Backend network:** An internal Docker network used for application-to-database communication.
+- **Database security:** PostgreSQL does not publish port `5432` on the host.
+- **Application access:** The application is published on host port `3000`.
+
+## Technology Stack
+
+| Technology | Purpose |
+|---|---|
+| Ubuntu Linux | Host operating system |
+| Docker Engine | Container runtime |
+| Docker Compose | Multi-container orchestration |
+| Node.js 22 | Application runtime |
+| Express | Web framework |
+| PostgreSQL 17 | Relational database |
+| Trivy | Container-image vulnerability scanning |
+| Git and GitHub | Source control and project hosting |
+
+## Repository Structure
+
+```text
 docker-two-tier-notes/
 ├── app/
 │   ├── Dockerfile
@@ -65,12 +71,15 @@ docker-two-tier-notes/
 ├── reports/
 │   └── .gitkeep
 ├── screenshots/
-│   └── .gitkeep
+│   ├── application.png
+│   ├── containers-healthy.png
+│   ├── health-checks.png
+│   └── trivy-scan.png
 ├── .env.example
 ├── .gitignore
 ├── compose.yaml
 └── README.md
-
+```
 
 Prerequisites
 - Linux host or virtual machine
