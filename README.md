@@ -22,14 +22,23 @@ The application allows users to create, view, and delete notes. The Node.js appl
 
 ```mermaid
 flowchart LR
-    User[User / Browser]
-    App[Node.js Express App<br/>Port 3000]
-    DB[(PostgreSQL<br/>Port 5432)]
-    Volume[(Persistent Database Volume)]
+    User["User / Browser"]
+    App["Node.js Express App<br/>Port 3000"]
+    DB["PostgreSQL<br/>Port 5432"]
+    Volume[("Persistent Database Volume")]
 
     User -->|HTTP| App
-    App -->|Private backend network| DB
+    App -->|Database queries| DB
     DB --> Volume
+
+    Frontend["Frontend Network"]
+    Backend["Internal Backend Network"]
+
+    User -.-> Frontend
+    Frontend --- App
+    App --- Backend
+    Backend --- DB
+```
 Network Design
 - Frontend network: connects the application to the frontend-facing Docker network.
 - Backend network: an internal Docker network used for application-to-database communication.
