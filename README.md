@@ -80,122 +80,226 @@ docker-two-tier-notes/
 ├── compose.yaml
 └── README.md
 ```
+## Prerequisites
 
-Prerequisites
+Before starting, ensure you have the following installed:
+
 - Linux host or virtual machine
 - Docker Engine
 - Docker Compose plugin
 - Git
 - Trivy (optional, for reproducing the security scan)
-Installation and Setup
-1. Clone the repository
-Using SSH:
+
+## Installation and Setup
+
+### 1. Clone the Repository
+
+**Using SSH:**
+
+```bash
 git clone git@github.com:Optimus-95/docker-two-tier-notes.git
 cd docker-two-tier-notes
+```
 
+Alternatively, clone using HTTPS:
 
-Alternatively, clone the repository using its HTTPS URL.
-2. Configure environment variables
+```bash
+git clone https://github.com/Optimus-95/docker-two-tier-notes.git
+cd docker-two-tier-notes
+```
+
+### 2. Configure Environment Variables
+
+Create your local environment file from the example:
+
+```bash
 cp .env.example .env
 nano .env
+```
 
+Configure the following values, using a strong, unique password for your database:
 
-Set a strong, unique database password in .env.
+```dotenv
 DB_NAME=notesdb
 DB_USER=notesapp
 DB_PASSWORD=replace_with_a_strong_random_password
+```
 
+Replace the example password with your own secure password.
 
-Never commit the real .env file or publish passwords, tokens, or private keys.
-3. Build and start the application
+**Security note:** Never commit your real `.env` file or publish passwords, tokens, or private keys.
+
+### 3. Build and Start the Application
+
+Build the image and start the application and database containers:
+
+```bash
 docker compose up -d --build
+```
 
+### 4. Check Container Status
 
-4. Check container status
+```bash
 docker compose ps
+```
 
+Wait until the application and database health checks report `healthy`.
 
-Wait for the application and database health checks to report healthy.
-5. Open the application
+### 5. Open the Application
+
 Open the following address in your browser:
+
+```text
 http://YOUR_SERVER_IP:3000
+```
 
+Replace `YOUR_SERVER_IP` with your server's reachable IP address.
 
-Replace YOUR_SERVER_IP with your server's reachable IP address. If accessing the server remotely, configure appropriate firewall rules for port 3000.
-Health Checks and Validation
-Application health
+If accessing the server remotely, configure appropriate firewall rules for port `3000` and restrict access as appropriate for your environment.
+
+## Health Checks and Validation
+
+### Application Health
+
+Run:
+
+```bash
 curl -i http://localhost:3000/health
-
+```
 
 Expected response:
-{"status":"ok"}
 
+```json
+{
+  "status": "ok"
+}
+```
 
-Database readiness
+### Database Readiness
+
+Run:
+
+```bash
 curl -i http://localhost:3000/ready
-
+```
 
 Expected response:
-{"status":"ready","database":"connected"}
 
+```json
+{
+  "status": "ready",
+  "database": "connected"
+}
+```
 
-View application logs
-docker compose logs --tail=100
+### View Application Logs
+
+Display the latest application logs:
+
+```bash
+docker compose logs --tail=100 app
+```
+
+Follow application logs in real time:
+
+```bash
 docker compose logs -f app
+```
 
+Press `Ctrl+C` to stop following the logs.
 
-Verify database persistence
-1. Create a note in the application.
+### Verify Database Persistence
+
+1. Open the application and create a note.
 2. Restart the containers:
-   docker compose restart
-3. Refresh the application and verify that the note remains.
-The PostgreSQL named volume preserves database data across normal container restarts and recreation.
-Container Security
-Security control	Implementation
-Non-root execution	Application runs as the node user
-Read-only filesystem	Application container uses read_only: true
-Reduced privileges	All Linux capabilities dropped for the application container
-Privilege escalation	no-new-privileges enabled
-Network isolation	Dedicated frontend and internal backend networks
-Database exposure	No host port mapping for PostgreSQL
-Persistent data	Named Docker volume for PostgreSQL
-Secret configuration	Environment variables supplied through .env
-Health monitoring	Docker health checks plus /health and /ready endpoints
-Image vulnerability scanning	Trivy
 
-These controls reduce exposure but do not replace host patching, secret rotation, access control, or ongoing security reviews.
-Vulnerability Scanning with Trivy
+   ```bash
+   docker compose restart
+   ```
+
+3. Refresh the application.
+4. Verify that the note is still available.
+
+The PostgreSQL named volume preserves database data across normal container restarts and container recreation, provided the volume is retained.
+
+## Container Security
+
+The project implements the following security controls:
+
+| Security Control | Implementation |
+|---|---|
+| Non-root execution | Application runs as the `node` user |
+| Read-only filesystem | Application container uses `read_only: true` |
+| Reduced privileges | All Linux capabilities are dropped for the application container |
+| Privilege escalation protection | `no-new-privileges` is enabled |
+| Network isolation | Dedicated frontend and internal backend networks |
+| Database exposure | PostgreSQL has no host port mapping |
+| Persistent data | Named Docker volume for PostgreSQL |
+| Secret configuration | Environment variables supplied through `.env` |
+| Health monitoring | Docker health checks and `/health` and `/ready` endpoints |
+| Image vulnerability scanning | Trivy vulnerability scanning |
+
+These controls help reduce exposure but do not replace host patching, secret rotation, access control, or ongoing security reviews.
+
+## Vulnerability Scanning with Trivy
+
 Scan the application image for HIGH and CRITICAL vulnerabilities:
+
+```bash
 trivy image \
   --scanners vuln \
   --severity HIGH,CRITICAL \
   docker-two-tier-notes:1.0
+```
 
+**Latest project test:** The rebuilt image's latest Trivy scan reported zero vulnerabilities in the selected HIGH and CRITICAL severity categories.
 
-Latest project test: The rebuilt image's latest Trivy scan reported zero vulnerabilities in the selected HIGH and CRITICAL severity categories.
+This result applies to the specific image and scan configuration at that time. Re-scan images after rebuilding or updating dependencies.
 
-This result describes that image and scan configuration at that time. Re-scan images after rebuilding or updating dependencies.
-Screenshots
-Project screenshots will be stored in the screenshots/ directory.
-Application Interface
-Docker Compose Container Status
-Health and Readiness Checks
-Trivy Vulnerability Scan
-Lessons Learned
-- Building and running a multi-container application with Docker Compose
+## Screenshots
+
+The project screenshots are stored in the `screenshots/` directory.
+
+### Application Interface
+
+![Application Interface](screenshots/application.png)
+
+### Docker Compose Container Status
+
+![Docker Compose Container Status](screenshots/containers-healthy.png)
+
+### Health and Readiness Checks
+
+![Health and Readiness Checks](screenshots/health-checks.png)
+
+### Trivy Vulnerability Scan
+
+![Trivy Vulnerability Scan](screenshots/trivy-scan.png)
+
+## Lessons Learned
+
+Through this project, I gained hands-on experience with:
+
+- Building and running a multi-container application using Docker Compose
 - Configuring service discovery and container networks
 - Persisting PostgreSQL data using named Docker volumes
 - Implementing health checks and readiness validation
 - Applying container hardening and least-privilege principles
-- Scanning images for known vulnerabilities with Trivy
-- Managing and publishing source code with Git and GitHub
-Future Improvements
-- Integrate Jenkins CI/CD automation
-- Automate image vulnerability scanning in the build pipeline
-- Add automated integration tests
-- Publish versioned images to a container registry
-- Add monitoring and deployment rollback automation
-Repository
-GitHub: Optimus-95/docker-two-tier-notes
+- Scanning container images for known vulnerabilities with Trivy
+- Managing and publishing source code using Git and GitHub
 
-Purpose: Hands-on DevOps portfolio project.
+## Future Improvements
+
+Potential enhancements for this project include:
+
+- Integrating Jenkins CI/CD automation
+- Automating image vulnerability scanning in the build pipeline
+- Adding automated integration tests
+- Publishing versioned images to a container registry
+- Adding monitoring and deployment rollback automation
+
+## Repository
+
+**GitHub:** [Optimus-95/docker-two-tier-notes](https://github.com/Optimus-95/docker-two-tier-notes)
+
+**Purpose:** A hands-on DevOps portfolio project demonstrating containerization, networking, persistent storage, health checks, security hardening, and vulnerability scanning.
